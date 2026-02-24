@@ -370,6 +370,7 @@ function App() {
                       {(() => {
                         const today = new Date();
                         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
                         const startDate = new Date(firstDay);
                         startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1));
                         

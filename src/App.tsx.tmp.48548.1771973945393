@@ -7,7 +7,39 @@ function App() {
   const [password, setPassword] = useState('')
   const [activeTab, setActiveTab] = useState('dashboard')
   const [searchTerm, setSearchTerm] = useState('')
+  const [currentDate, setCurrentDate] = useState(new Date())
   const [calendarView, setCalendarView] = useState('month')
+
+  // Données simulées pour le calendrier
+  const events = [
+    {
+      id: 1,
+      title: 'Formation Excel Avancé',
+      start: new Date(2024, 11, 28, 9, 0),
+      end: new Date(2024, 11, 28, 17, 0),
+      type: 'presentiel',
+      trainer: 'Sophie Martin',
+      participants: 12
+    },
+    {
+      id: 2,
+      title: 'Leadership & Management',
+      start: new Date(2024, 11, 29, 14, 0),
+      end: new Date(2024, 11, 29, 18, 0),
+      type: 'zoom',
+      trainer: 'Pierre Dubois',
+      participants: 8
+    },
+    {
+      id: 3,
+      title: 'Marketing Digital',
+      start: new Date(2024, 11, 30, 10, 0),
+      end: new Date(2024, 11, 30, 16, 0),
+      type: 'hybride',
+      trainer: 'Marie Leroy',
+      participants: 15
+    }
+  ]
 
   // Simulation d'authentification pour test
   const handleLogin = (e: React.FormEvent) => {
@@ -370,6 +402,7 @@ function App() {
                       {(() => {
                         const today = new Date();
                         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
                         const startDate = new Date(firstDay);
                         startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1));
                         
