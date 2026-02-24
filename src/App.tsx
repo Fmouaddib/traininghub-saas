@@ -285,124 +285,126 @@ function App() {
               )}
             </div>
 
-            {/* Stats Grid */}
+            {/* Stats & Actions Row */}
             {activeTab === 'dashboard' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                {stats.map((stat, index) => (
-                  <div key={index} className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl p-4 hover:bg-white hover:border-slate-300/80 transition-all duration-200">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <p className="text-xs font-medium text-slate-500 mb-1 uppercase tracking-wide">{stat.label}</p>
-                        <p className="text-xl font-bold text-slate-900">{stat.value}</p>
-                      </div>
-                      <div className="flex items-center space-x-1 bg-emerald-50 text-emerald-600 px-2 py-1 rounded-md">
-                        <span className="text-xs font-semibold">{stat.change}</span>
-                        <div className="w-1 h-1 bg-emerald-500 rounded-full"></div>
+              <div className="flex flex-col lg:flex-row gap-6 mb-8">
+                {/* Stats Indicators */}
+                <div className="flex flex-wrap gap-4">
+                  {stats.map((stat, index) => (
+                    <div key={index} className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl px-4 py-3 hover:bg-white hover:border-slate-300/80 transition-all duration-200 min-w-[200px]">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-slate-500 mb-1 uppercase tracking-wide">{stat.label}</p>
+                          <p className="text-lg font-bold text-slate-900">{stat.value}</p>
+                        </div>
+                        <div className="flex items-center space-x-1 bg-emerald-50 text-emerald-600 px-2 py-1 rounded-md ml-3">
+                          <span className="text-xs font-semibold">{stat.change}</span>
+                          <div className="w-1 h-1 bg-emerald-500 rounded-full"></div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
 
-            {/* Quick Actions Panel */}
-            {activeTab === 'dashboard' && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-                <button 
-                  onClick={() => setActiveTab('new-session')}
-                  className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl p-4 hover:bg-white hover:border-blue-300/80 hover:shadow-md transition-all duration-200 group"
-                >
-                  <div className="flex flex-col items-center text-center space-y-2">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-                      <Plus className="w-4 h-4 text-blue-600" />
+                {/* Quick Actions */}
+                <div className="flex flex-wrap gap-3 lg:ml-auto">
+                  <button 
+                    onClick={() => setActiveTab('new-session')}
+                    className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl px-4 py-3 hover:bg-white hover:border-indigo-300/80 hover:shadow-md transition-all duration-200 group min-w-[140px]"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                        <Plus className="w-3 h-3 text-indigo-600" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-xs font-semibold text-slate-800">Nouvelle Session</h3>
+                        <p className="text-xs text-slate-500">Créer</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-slate-800">Nouvelle Session</h3>
-                      <p className="text-xs text-slate-500">Créer une formation</p>
+                  </button>
+                  
+                  <button 
+                    onClick={() => setActiveTab('sessions')}
+                    className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl px-4 py-3 hover:bg-white hover:border-emerald-300/80 hover:shadow-md transition-all duration-200 group min-w-[120px]"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+                        <Calendar className="w-3 h-3 text-emerald-600" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-xs font-semibold text-slate-800">Planning</h3>
+                        <p className="text-xs text-slate-500">Sessions</p>
+                      </div>
                     </div>
-                  </div>
-                </button>
-                
-                <button 
-                  onClick={() => setActiveTab('sessions')}
-                  className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl p-4 hover:bg-white hover:border-green-300/80 hover:shadow-md transition-all duration-200 group"
-                >
-                  <div className="flex flex-col items-center text-center space-y-2">
-                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                      <Calendar className="w-4 h-4 text-green-600" />
+                  </button>
+                  
+                  <button 
+                    onClick={() => setActiveTab('participants')}
+                    className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl px-4 py-3 hover:bg-white hover:border-indigo-300/80 hover:shadow-md transition-all duration-200 group min-w-[130px]"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 bg-indigo-100 rounded-lg flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
+                        <Users className="w-3 h-3 text-indigo-600" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-xs font-semibold text-slate-800">Participants</h3>
+                        <p className="text-xs text-slate-500">Inscriptions</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-slate-800">Planning</h3>
-                      <p className="text-xs text-slate-500">Sessions à venir</p>
+                  </button>
+                  
+                  <button 
+                    onClick={() => setActiveTab('zoom')}
+                    className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl px-4 py-3 hover:bg-white hover:border-emerald-300/80 hover:shadow-md transition-all duration-200 group min-w-[100px]"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 bg-emerald-100 rounded-lg flex items-center justify-center group-hover:bg-emerald-200 transition-colors">
+                        <Video className="w-3 h-3 text-emerald-600" />
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-xs font-semibold text-slate-800">Zoom</h3>
+                        <p className="text-xs text-slate-500">Vidéo</p>
+                      </div>
                     </div>
-                  </div>
-                </button>
-                
-                <button 
-                  onClick={() => setActiveTab('participants')}
-                  className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl p-4 hover:bg-white hover:border-purple-300/80 hover:shadow-md transition-all duration-200 group"
-                >
-                  <div className="flex flex-col items-center text-center space-y-2">
-                    <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
-                      <Users className="w-4 h-4 text-purple-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-slate-800">Participants</h3>
-                      <p className="text-xs text-slate-500">Inscriptions</p>
-                    </div>
-                  </div>
-                </button>
-                
-                <button 
-                  onClick={() => setActiveTab('zoom')}
-                  className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl p-4 hover:bg-white hover:border-orange-300/80 hover:shadow-md transition-all duration-200 group"
-                >
-                  <div className="flex flex-col items-center text-center space-y-2">
-                    <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
-                      <Video className="w-4 h-4 text-orange-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-slate-800">Zoom</h3>
-                      <p className="text-xs text-slate-500">Visioconférence</p>
-                    </div>
-                  </div>
-                </button>
+                  </button>
+                </div>
               </div>
             )}
 
             {/* Content based on active tab */}
             {activeTab === 'dashboard' && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Mini Calendar Widget */}
+                {/* Simple Calendar Preview */}
                 <div className="card">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Calendrier du mois</h3>
-                  <div className="h-64">
-                    <BigCalendar
-                      localizer={localizer}
-                      events={events}
-                      startAccessor="start"
-                      endAccessor="end"
-                      view="month"
-                      views={['month']}
-                      toolbar={false}
-                      formats={{
-                        dateFormat: 'dd',
-                        dayHeaderFormat: 'eeeeee',
-                        monthHeaderFormat: 'MMMM yyyy'
-                      }}
-                      eventPropGetter={(event) => ({
-                        style: {
-                          backgroundColor: event.type === 'zoom' ? '#10b981' : 
-                                         event.type === 'hybride' ? '#f59e0b' : '#3b82f6',
-                          border: 'none',
-                          color: 'white',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          padding: '1px 3px'
-                        }
+                  <h3 className="text-lg font-semibold text-slate-800 mb-4">Aperçu du mois</h3>
+                  <div className="space-y-2">
+                    <div className="text-center mb-4">
+                      <h4 className="text-xl font-bold text-indigo-600">{format(new Date(), 'MMMM yyyy', { locale: fr })}</h4>
+                    </div>
+                    <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2">
+                      {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(day => (
+                        <div key={day} className="p-1 font-medium text-slate-600">{day}</div>
+                      ))}
+                    </div>
+                    <div className="grid grid-cols-7 gap-1">
+                      {Array.from({ length: 35 }, (_, i) => {
+                        const day = i - 5; // Adjust for calendar start
+                        const hasEvent = [3, 10, 17, 24].includes(day);
+                        return (
+                          <div key={i} className={`aspect-square flex items-center justify-center text-xs rounded ${
+                            day > 0 && day <= 31 
+                              ? hasEvent 
+                                ? 'bg-indigo-100 text-indigo-700 font-medium' 
+                                : day === new Date().getDate() 
+                                  ? 'bg-indigo-600 text-white font-bold'
+                                  : 'text-slate-700 hover:bg-slate-100'
+                              : 'text-slate-400'
+                          }`}>
+                            {day > 0 && day <= 31 ? day : ''}
+                          </div>
+                        )
                       })}
-                      onSelectEvent={() => setActiveTab('sessions')}
-                    />
+                    </div>
                   </div>
                 </div>
 
