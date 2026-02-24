@@ -1,0 +1,274 @@
+import { useState } from 'react'
+import { Calendar, GraduationCap, Users, Settings, Bell, Search, Plus, LogOut, Video, BarChart3, Mail } from 'lucide-react'
+
+function App() {
+  const [showAuth, setShowAuth] = useState(true)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [activeTab, setActiveTab] = useState('dashboard')
+  const [searchTerm, setSearchTerm] = useState('')
+
+  // Simulation d'authentification pour test
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (email && password) {
+      setShowAuth(false) // Simule une connexion réussie
+    }
+  }
+
+  const handleLogout = () => {
+    setShowAuth(true)
+    setEmail('')
+    setPassword('')
+    setActiveTab('dashboard')
+    setSearchTerm('')
+  }
+
+  const handleNewReservation = () => {
+    alert('Fonctionnalité "Nouvelle réservation" - À développer avec Supabase!')
+  }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchTerm.trim()) {
+      alert(`Recherche pour : "${searchTerm}" - À développer avec Supabase!`)
+    }
+  }
+
+  const handleNotifications = () => {
+    alert('Centre de notifications - À développer!')
+  }
+
+  // Page d'authentification
+  if (showAuth) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <div className="mx-auto h-16 w-16 bg-blue-600 rounded-lg flex items-center justify-center">
+              <GraduationCap className="h-8 w-8 text-white" />
+            </div>
+            <h2 className="mt-6 text-3xl font-bold text-gray-900">
+              Connexion
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Accédez à votre plateforme de formation
+            </p>
+          </div>
+
+          <form className="card" onSubmit={handleLogin}>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="email" className="sr-only">Email</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="input"
+                  placeholder="Adresse email"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="sr-only">Mot de passe</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="input"
+                  placeholder="Mot de passe"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="btn-primary w-full mt-6"
+            >
+              Se connecter
+            </button>
+
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-500">
+                Test : utilisez n'importe quel email/mot de passe
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+    )
+  }
+
+  // Dashboard principal
+  const navigation = [
+    { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
+    { id: 'sessions', name: 'Sessions Formation', icon: Calendar },
+    { id: 'programs', name: 'Programmes', icon: GraduationCap },
+    { id: 'participants', name: 'Participants', icon: Users },
+    { id: 'zoom', name: 'Zoom/Visio', icon: Video },
+    { id: 'emails', name: 'Emails Auto', icon: Mail },
+    { id: 'settings', name: 'Paramètres', icon: Settings },
+  ]
+
+  const stats = [
+    { label: 'Sessions ce mois', value: '47', change: '+12' },
+    { label: 'Participants actifs', value: '284', change: '+28' },
+    { label: 'Taux présence', value: '87%', change: '+5%' },
+    { label: 'Revenus (€)', value: '23.4K', change: '+18%' },
+  ]
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg">
+                <GraduationCap className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">TrainingHub</h1>
+                <p className="text-sm text-gray-500">Gestion de centres de formation</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <form onSubmit={handleSearch} className="relative">
+                <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Rechercher..."
+                  className="input pl-10 pr-4 py-2 w-64"
+                />
+              </form>
+              <button 
+                onClick={handleNotifications}
+                className="relative p-2 text-gray-400 hover:text-gray-600"
+              >
+                <Bell className="w-5 h-5" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </button>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-sm font-medium text-blue-700">
+                    {email[0]?.toUpperCase() || 'U'}
+                  </span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="p-2 text-gray-400 hover:text-gray-600"
+                  title="Déconnexion"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* Sidebar */}
+        <nav className="w-64 bg-white shadow-sm border-r min-h-screen">
+          <div className="p-6">
+            <ul className="space-y-2">
+              {navigation.map((item) => {
+                const Icon = item.icon
+                return (
+                  <li key={item.id}>
+                    <button 
+                      onClick={() => setActiveTab(item.id)}
+                      className={`nav-button space-x-3 ${
+                        activeTab === item.id ? 'active' : ''
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="font-medium">{item.name}</span>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        </nav>
+
+        {/* Main Content */}
+        <main className="flex-1 p-8">
+          <div className="max-w-7xl mx-auto">
+            {/* Page Header */}
+            <div className="mb-8 flex items-center justify-between">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900">Tableau de bord</h2>
+                <p className="mt-1 text-gray-500">Vue d'ensemble de votre établissement</p>
+              </div>
+              <button 
+                onClick={handleNewReservation}
+                className="btn-primary flex items-center space-x-2"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Nouvelle réservation</span>
+              </button>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-4 gap-6 mb-8">
+              {stats.map((stat, index) => (
+                <div key={index} className="card">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">{stat.label}</p>
+                      <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+                    </div>
+                    <div className="flex items-center space-x-1 text-green-600">
+                      <span className="text-sm font-medium">{stat.change}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Recent Activity */}
+            <div className="card">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Activité récente</h3>
+                <button 
+                  onClick={() => alert('Page de toutes les activités - À développer!')}
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                >
+                  Voir tout
+                </button>
+              </div>
+              <div className="space-y-4">
+                {[
+                  { action: 'Nouvelle réservation', room: 'Salle A101', user: 'Prof. Martin', time: 'Il y a 5 min' },
+                  { action: 'Réservation modifiée', room: 'Amphithéâtre B', user: 'Dr. Dubois', time: 'Il y a 15 min' },
+                  { action: 'Réservation annulée', room: 'Lab Informatique', user: 'Prof. Leroy', time: 'Il y a 30 min' },
+                ].map((activity, index) => (
+                  <div key={index} className="flex items-center space-x-4 p-4 rounded-lg bg-gray-50">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">{activity.action}</p>
+                      <p className="text-sm text-gray-500">{activity.room} • {activity.user}</p>
+                    </div>
+                    <div className="text-sm text-gray-400">{activity.time}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  )
+}
+
+export default App
