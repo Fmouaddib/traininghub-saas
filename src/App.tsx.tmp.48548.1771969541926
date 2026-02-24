@@ -3,7 +3,6 @@ import { Calendar, GraduationCap, Users, Settings, Bell, Search, Plus, LogOut, V
 import { Calendar as BigCalendar, momentLocalizer, Views } from 'react-big-calendar'
 import moment from 'moment'
 import 'moment/locale/fr'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
 
 // Configuration du localizer français
 moment.locale('fr')
