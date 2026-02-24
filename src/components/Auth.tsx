@@ -33,7 +33,7 @@ export default function Auth() {
           setMessage('Inscription réussie ! Vérifiez votre email.')
         }
       }
-    } catch (error) {
+    } catch {
       setMessage('Une erreur inattendue s\'est produite.')
     } finally {
       setLoading(false)

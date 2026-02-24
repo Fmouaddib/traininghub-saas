@@ -36,8 +36,9 @@ export function useAuth() {
       })
       if (error) throw error
       return { data, error: null }
-    } catch (error: any) {
-      return { data: null, error: { message: error.message || 'Erreur de connexion' } }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erreur de connexion'
+      return { data: null, error: { message } }
     }
   }
 
@@ -55,8 +56,9 @@ export function useAuth() {
       })
       if (error) throw error
       return { data, error: null }
-    } catch (error: any) {
-      return { data: null, error: { message: error.message || 'Erreur d\'inscription' } }
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Erreur d\'inscription'
+      return { data: null, error: { message } }
     }
   }
 
