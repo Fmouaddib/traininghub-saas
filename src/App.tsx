@@ -287,17 +287,17 @@ function App() {
 
             {/* Stats Grid */}
             {activeTab === 'dashboard' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 {stats.map((stat, index) => (
-                  <div key={index} className="card group">
+                  <div key={index} className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl p-4 hover:bg-white hover:border-slate-300/80 transition-all duration-200">
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <p className="text-sm font-semibold text-slate-600 mb-2 uppercase tracking-wide">{stat.label}</p>
-                        <p className="text-3xl font-black font-heading text-slate-900">{stat.value}</p>
+                        <p className="text-xs font-medium text-slate-500 mb-1 uppercase tracking-wide">{stat.label}</p>
+                        <p className="text-xl font-bold text-slate-900">{stat.value}</p>
                       </div>
-                      <div className="flex items-center space-x-1 bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full">
-                        <span className="text-sm font-bold">{stat.change}</span>
-                        <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse"></div>
+                      <div className="flex items-center space-x-1 bg-emerald-50 text-emerald-600 px-2 py-1 rounded-md">
+                        <span className="text-xs font-semibold">{stat.change}</span>
+                        <div className="w-1 h-1 bg-emerald-500 rounded-full"></div>
                       </div>
                     </div>
                   </div>
@@ -306,44 +306,69 @@ function App() {
             )}
 
             {/* Quick Actions Panel */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
-              <div className="card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab('new-session')}>
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                    <Plus className="w-6 h-6 text-blue-600" />
+            {activeTab === 'dashboard' && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+                <button 
+                  onClick={() => setActiveTab('new-session')}
+                  className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl p-4 hover:bg-white hover:border-blue-300/80 hover:shadow-md transition-all duration-200 group"
+                >
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                      <Plus className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-800">Nouvelle Session</h3>
+                      <p className="text-xs text-slate-500">Créer une formation</p>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-gray-900">Nouvelle Session</h3>
-                  <p className="text-sm text-gray-500 mt-1">Créer une formation</p>
-                </div>
-              </div>
-              <div className="card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab('sessions')}>
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                    <Calendar className="w-6 h-6 text-green-600" />
+                </button>
+                
+                <button 
+                  onClick={() => setActiveTab('sessions')}
+                  className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl p-4 hover:bg-white hover:border-green-300/80 hover:shadow-md transition-all duration-200 group"
+                >
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                      <Calendar className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-800">Planning</h3>
+                      <p className="text-xs text-slate-500">Sessions à venir</p>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-gray-900">Planning</h3>
-                  <p className="text-sm text-gray-500 mt-1">Voir toutes les sessions</p>
-                </div>
-              </div>
-              <div className="card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab('participants')}>
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                    <Users className="w-6 h-6 text-purple-600" />
+                </button>
+                
+                <button 
+                  onClick={() => setActiveTab('participants')}
+                  className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl p-4 hover:bg-white hover:border-purple-300/80 hover:shadow-md transition-all duration-200 group"
+                >
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-purple-200 transition-colors">
+                      <Users className="w-4 h-4 text-purple-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-800">Participants</h3>
+                      <p className="text-xs text-slate-500">Inscriptions</p>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-gray-900">Participants</h3>
-                  <p className="text-sm text-gray-500 mt-1">Gérer les inscriptions</p>
-                </div>
-              </div>
-              <div className="card cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveTab('zoom')}>
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                    <Video className="w-6 h-6 text-orange-600" />
+                </button>
+                
+                <button 
+                  onClick={() => setActiveTab('zoom')}
+                  className="bg-white/90 backdrop-blur-sm border border-slate-200/60 rounded-xl p-4 hover:bg-white hover:border-orange-300/80 hover:shadow-md transition-all duration-200 group"
+                >
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+                      <Video className="w-4 h-4 text-orange-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-800">Zoom</h3>
+                      <p className="text-xs text-slate-500">Visioconférence</p>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-gray-900">Zoom</h3>
-                  <p className="text-sm text-gray-500 mt-1">Configuration vidéo</p>
-                </div>
+                </button>
               </div>
-            </div>
+            )}
 
             {/* Content based on active tab */}
             {activeTab === 'dashboard' && (
