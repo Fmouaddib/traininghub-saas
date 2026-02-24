@@ -225,30 +225,51 @@ function App() {
 
       <div className="flex">
         {/* Sidebar */}
-        <nav className="w-72 bg-glass-dark border-r border-white/10 min-h-screen backdrop-blur-xl">
+        <nav className="w-72 bg-glass-dark border-r border-white/10 min-h-screen backdrop-blur-xl relative">
           <div className="p-8">
             <div className="mb-8">
               <h2 className="text-lg font-bold font-heading text-white/90 mb-2">Navigation</h2>
               <div className="w-12 h-1 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"></div>
             </div>
-            <ul className="space-y-1">
-              {navigation.map((item) => {
+            <div className="space-y-1">
+              {navigation.filter(item => item.id !== 'settings').map((item) => {
                 const Icon = item.icon
                 return (
-                  <li key={item.id}>
+                  <button 
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`nav-button ${
+                      activeTab === item.id ? 'active' : ''
+                    }`}
+                  >
+                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    <span>{item.name}</span>
+                  </button>
+                )
+              })}
+            </div>
+            
+            {/* Account Settings at Bottom */}
+            <div className="absolute bottom-8 left-8 right-8">
+              <div className="border-t border-white/10 pt-4">
+                {(() => {
+                  const settingsItem = navigation.find(item => item.id === 'settings');
+                  if (!settingsItem) return null;
+                  const Icon = settingsItem.icon;
+                  return (
                     <button 
-                      onClick={() => setActiveTab(item.id)}
-                      className={`nav-button ${
-                        activeTab === item.id ? 'active' : ''
+                      onClick={() => setActiveTab('settings')}
+                      className={`nav-button w-full ${
+                        activeTab === 'settings' ? 'active' : ''
                       }`}
                     >
                       <Icon className="w-5 h-5 flex-shrink-0" />
-                      <span>{item.name}</span>
+                      <span>{settingsItem.name}</span>
                     </button>
-                  </li>
-                )
-              })}
-            </ul>
+                  );
+                })()}
+              </div>
+            </div>
           </div>
         </nav>
 
@@ -379,7 +400,9 @@ function App() {
                   <h3 className="text-lg font-semibold text-slate-800 mb-4">Aperçu du mois</h3>
                   <div className="space-y-2">
                     <div className="text-center mb-4">
-                      <h4 className="text-xl font-bold text-indigo-600">{format(new Date(), 'MMMM yyyy', { locale: fr })}</h4>
+                      <h4 className="text-xl font-bold text-indigo-600">
+                        {new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })}
+                      </h4>
                     </div>
                     <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2">
                       {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(day => (
@@ -387,23 +410,37 @@ function App() {
                       ))}
                     </div>
                     <div className="grid grid-cols-7 gap-1">
-                      {Array.from({ length: 35 }, (_, i) => {
-                        const day = i - 5; // Adjust for calendar start
-                        const hasEvent = [3, 10, 17, 24].includes(day);
-                        return (
-                          <div key={i} className={`aspect-square flex items-center justify-center text-xs rounded ${
-                            day > 0 && day <= 31 
-                              ? hasEvent 
-                                ? 'bg-indigo-100 text-indigo-700 font-medium' 
-                                : day === new Date().getDate() 
-                                  ? 'bg-indigo-600 text-white font-bold'
+                      {(() => {
+                        const today = new Date();
+                        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                        const startDate = new Date(firstDay);
+                        startDate.setDate(startDate.getDate() - (firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1));
+                        
+                        const days = [];
+                        for (let i = 0; i < 42; i++) {
+                          const currentDate = new Date(startDate);
+                          currentDate.setDate(startDate.getDate() + i);
+                          const isCurrentMonth = currentDate.getMonth() === today.getMonth();
+                          const isToday = currentDate.toDateString() === today.toDateString();
+                          const hasEvent = [3, 10, 17, 24].includes(currentDate.getDate()) && isCurrentMonth;
+                          
+                          days.push(
+                            <div key={i} className={`aspect-square flex items-center justify-center text-xs rounded ${
+                              isCurrentMonth
+                                ? hasEvent 
+                                  ? 'bg-indigo-100 text-indigo-700 font-medium' 
+                                  : isToday 
+                                    ? 'bg-indigo-600 text-white font-bold'
                                   : 'text-slate-700 hover:bg-slate-100'
                               : 'text-slate-400'
                           }`}>
-                            {day > 0 && day <= 31 ? day : ''}
+                            {currentDate.getDate()}
                           </div>
-                        )
-                      })}
+                          );
+                        }
+                        return days;
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -411,35 +448,35 @@ function App() {
                 {/* Sessions Today */}
                 <div className="card">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900">Aujourd'hui</h3>
-                    <span className="text-sm text-gray-500">{format(new Date(), 'dd MMMM', { locale: fr })}</span>
+                    <h3 className="text-lg font-semibold text-slate-800">Aujourd'hui</h3>
+                    <span className="text-sm text-slate-500">
+                      {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+                    </span>
                   </div>
                   <div className="space-y-3">
-                    {events.filter(event => 
-                      format(event.start, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
-                    ).map((session, index) => (
-                      <div key={index} className="p-3 rounded-lg border border-gray-200">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium text-gray-900 text-sm">{session.title}</h4>
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            session.type === 'zoom' ? 'bg-green-100 text-green-800' :
-                            session.type === 'hybride' ? 'bg-orange-100 text-orange-800' :
-                            'bg-blue-100 text-blue-800'
-                          }`}>
-                            {session.type}
-                          </span>
+                    {(() => {
+                      const todaySessions = [
+                        { title: 'Formation Excel', time: '09:00 - 12:00', type: 'présentiel', trainer: 'Sophie M.' },
+                        { title: 'Leadership', time: '14:00 - 17:00', type: 'zoom', trainer: 'Pierre D.' }
+                      ];
+                      
+                      return todaySessions.map((session, index) => (
+                        <div key={index} className="p-3 rounded-lg border border-slate-200 bg-white/50">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-medium text-slate-800 text-sm">{session.title}</h4>
+                            <span className={`px-2 py-1 text-xs rounded-full font-medium ${
+                              session.type === 'zoom' ? 'bg-emerald-100 text-emerald-700' :
+                              session.type === 'hybride' ? 'bg-orange-100 text-orange-700' :
+                              'bg-indigo-100 text-indigo-700'
+                            }`}>
+                              {session.type}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-600">{session.trainer}</p>
+                          <p className="text-xs text-slate-500">{session.time}</p>
                         </div>
-                        <p className="text-xs text-gray-600">{session.trainer}</p>
-                        <p className="text-xs text-gray-500">
-                          {format(session.start, 'HH:mm')} - {format(session.end, 'HH:mm')}
-                        </p>
-                      </div>
-                    ))}
-                    {events.filter(event => 
-                      format(event.start, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
-                    ).length === 0 && (
-                      <p className="text-gray-500 text-sm text-center py-4">Aucune session aujourd'hui</p>
-                    )}
+                      ));
+                    })()}
                   </div>
                 </div>
 
@@ -663,24 +700,24 @@ function App() {
             {activeTab === 'sessions' && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-gray-900">Planning des Sessions</h3>
+                  <h3 className="text-xl font-bold text-slate-800">Planning des Sessions</h3>
                   <div className="flex space-x-3">
-                    <div className="flex space-x-2 bg-white border border-gray-200 rounded-lg p-1">
+                    <div className="flex space-x-2 bg-white border border-slate-200 rounded-lg p-1">
                       <button 
                         onClick={() => setCalendarView('month')}
-                        className={`px-3 py-1 text-sm rounded ${calendarView === 'month' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                        className={`px-3 py-1 text-sm rounded ${calendarView === 'month' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
                       >
                         Mois
                       </button>
                       <button 
                         onClick={() => setCalendarView('week')}
-                        className={`px-3 py-1 text-sm rounded ${calendarView === 'week' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                        className={`px-3 py-1 text-sm rounded ${calendarView === 'week' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
                       >
                         Semaine
                       </button>
                       <button 
                         onClick={() => setCalendarView('day')}
-                        className={`px-3 py-1 text-sm rounded ${calendarView === 'day' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                        className={`px-3 py-1 text-sm rounded ${calendarView === 'day' ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}
                       >
                         Jour
                       </button>
@@ -691,26 +728,90 @@ function App() {
                   </div>
                 </div>
                 
-                {/* Interactive Calendar */}
+                {/* Sessions List */}
                 <div className="card">
-                  <div className="h-calendar">
-                    <BigCalendar
-                      localizer={localizer}
-                      events={events}
-                      startAccessor="start"
-                      endAccessor="end"
-                      view={calendarView as any}
-                      onView={setCalendarView}
-                      onNavigate={setCurrentDate}
-                      date={currentDate}
-                      views={['month', 'week', 'day']}
-                      messages={{
-                        next: "Suivant",
-                        previous: "Précédent",
-                        today: "Aujourd'hui",
-                        month: "Mois",
-                        week: "Semaine", 
-                        day: "Jour",
+                  <h4 className="text-lg font-semibold text-slate-800 mb-4">Sessions planifiées</h4>
+                  <div className="space-y-4">
+                    {(() => {
+                      const sessions = [
+                        {
+                          id: 1,
+                          title: 'Formation Excel Avancé',
+                          date: '28 février 2026',
+                          time: '09:00 - 17:00',
+                          type: 'présentiel',
+                          trainer: 'Sophie Martin',
+                          participants: 12,
+                          room: 'Salle Alpha'
+                        },
+                        {
+                          id: 2,
+                          title: 'Leadership & Management',
+                          date: '01 mars 2026',
+                          time: '14:00 - 18:00',
+                          type: 'zoom',
+                          trainer: 'Pierre Dubois',
+                          participants: 8,
+                          room: 'Zoom Room 1'
+                        },
+                        {
+                          id: 3,
+                          title: 'Marketing Digital',
+                          date: '03 mars 2026',
+                          time: '10:00 - 16:00',
+                          type: 'hybride',
+                          trainer: 'Marie Leroy',
+                          participants: 15,
+                          room: 'Salle Beta + Zoom'
+                        }
+                      ];
+                      
+                      return sessions.map(session => (
+                        <div key={session.id} className="bg-white border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition-colors">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-3 mb-2">
+                                <h5 className="font-semibold text-slate-800">{session.title}</h5>
+                                <span className={`px-2 py-1 text-xs rounded-full font-medium ${
+                                  session.type === 'zoom' ? 'bg-emerald-100 text-emerald-700' :
+                                  session.type === 'hybride' ? 'bg-orange-100 text-orange-700' :
+                                  'bg-indigo-100 text-indigo-700'
+                                }`}>
+                                  {session.type}
+                                </span>
+                              </div>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-slate-600">
+                                <div>
+                                  <span className="font-medium">Date:</span> {session.date}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Horaires:</span> {session.time}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Formateur:</span> {session.trainer}
+                                </div>
+                                <div>
+                                  <span className="font-medium">Participants:</span> {session.participants}
+                                </div>
+                                <div className="md:col-span-2">
+                                  <span className="font-medium">Salle:</span> {session.room}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex space-x-2 ml-4">
+                              <button className="px-3 py-1 text-xs bg-indigo-100 text-indigo-700 rounded-md hover:bg-indigo-200 transition-colors">
+                                Modifier
+                              </button>
+                              <button className="px-3 py-1 text-xs bg-slate-100 text-slate-700 rounded-md hover:bg-slate-200 transition-colors">
+                                Voir détails
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </div>
                         agenda: "Agenda",
                         date: "Date",
                         time: "Heure",
