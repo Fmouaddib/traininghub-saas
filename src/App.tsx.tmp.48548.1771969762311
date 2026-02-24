@@ -352,7 +352,7 @@ function App() {
                       views={[Views.MONTH, Views.WEEK, Views.DAY]}
                       defaultView={Views.MONTH}
                       date={currentDate}
-                      onNavigate={(date: Date) => setCurrentDate(date)}
+                      onNavigate={(date) => setCurrentDate(date)}
                       culture="fr"
                       messages={{
                         next: "Suivant",
@@ -365,9 +365,9 @@ function App() {
                         date: "Date",
                         time: "Heure",
                         event: "Événement",
-                        showMore: (total: number) => `+ ${total} de plus`
+                        showMore: total => `+ ${total} de plus`
                       }}
-                      onSelectEvent={(event: any) => alert(`Session: ${event.title}\nFormateur: ${event.resource.trainer}\nSalle: ${event.resource.room}\nParticipants: ${event.resource.participants}`)}
+                      onSelectEvent={(event) => alert(`Session: ${event.title}\nFormateur: ${event.resource.trainer}\nSalle: ${event.resource.room}\nParticipants: ${event.resource.participants}`)}
                       style={{ height: '100%' }}
                     />
                   </div>

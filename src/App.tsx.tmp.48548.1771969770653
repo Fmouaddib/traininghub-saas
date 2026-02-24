@@ -367,7 +367,7 @@ function App() {
                         event: "Événement",
                         showMore: (total: number) => `+ ${total} de plus`
                       }}
-                      onSelectEvent={(event: any) => alert(`Session: ${event.title}\nFormateur: ${event.resource.trainer}\nSalle: ${event.resource.room}\nParticipants: ${event.resource.participants}`)}
+                      onSelectEvent={(event) => alert(`Session: ${event.title}\nFormateur: ${event.resource.trainer}\nSalle: ${event.resource.room}\nParticipants: ${event.resource.participants}`)}
                       style={{ height: '100%' }}
                     />
                   </div>
