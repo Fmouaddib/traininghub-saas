@@ -73,22 +73,65 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setState(prev => ({ ...prev, loading: false }));
   }, []);
 
-  // Enhanced sign in with demo mode priority
+  // Enhanced sign in - Supabase first, demo fallback
   const signIn = async (email: string, password: string) => {
     console.log('🔐 Tentative de connexion avec:', email);
-    console.log('🔐 Mot de passe fourni:', password);
-    console.log('🔐 Comptes démo disponibles:', demoCredentials.map(c => c.email));
+    console.log('🔐 Supabase URL:', import.meta.env.VITE_SUPABASE_URL);
     setState(prev => ({ ...prev, loading: true }));
 
-    // Always check demo credentials first - normalize inputs
+    // Normalize inputs
     const normalizedEmail = email.toLowerCase().trim();
     const normalizedPassword = password.trim();
-    
+
+    // Try Supabase FIRST (prioritized over demo mode)
+    const supabaseResult = await safeSupabaseOperation(async () => {
+      const { supabase } = await import('../lib/supabase');
+      return await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password: normalizedPassword,
+      });
+    });
+
+    if (supabaseResult && !supabaseResult.error && supabaseResult.data.user) {
+      console.log('✅ Connexion Supabase réussie pour:', normalizedEmail);
+      
+      // Fetch profile data
+      const { supabase } = await import('../lib/supabase');
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', supabaseResult.data.user.id)
+        .single();
+
+      const authUser: AuthUser = {
+        id: supabaseResult.data.user.id,
+        email: supabaseResult.data.user.email || '',
+        profile: {
+          full_name: profile?.full_name || 'Utilisateur',
+          role: profile?.role || 'participant',
+          preferences: {
+            theme: 'light',
+            notifications: true,
+            language: 'fr'
+          }
+        }
+      };
+
+      setState({
+        user: authUser,
+        loading: false,
+        isAuthenticated: true,
+      });
+
+      return { user: authUser, error: null };
+    }
+
+    // Fallback to demo mode if Supabase fails
     const demoUser = demoCredentials.find(
       cred => cred.email === normalizedEmail && cred.password === normalizedPassword
     );
 
-    console.log('🔐 Recherche utilisateur demo pour:', normalizedEmail, normalizedPassword);
+    console.log('🔄 Supabase échec, test mode démo pour:', normalizedEmail);
     console.log('🔐 Utilisateur demo trouvé:', demoUser ? demoUser.email : 'Aucun');
 
     if (demoUser) {
@@ -113,39 +156,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       return { user: mockUser, error: null };
-    }
-
-    // Try Supabase only if demo credentials don't match
-    const supabaseResult = await safeSupabaseOperation(async () => {
-      const { supabase } = await import('../lib/supabase');
-      return await supabase.auth.signInWithPassword({
-        email: email.toLowerCase().trim(),
-        password,
-      });
-    });
-
-    if (supabaseResult && !supabaseResult.error && supabaseResult.data.user) {
-      const authUser: AuthUser = {
-        id: supabaseResult.data.user.id,
-        email: supabaseResult.data.user.email || '',
-        profile: {
-          full_name: supabaseResult.data.user.user_metadata?.full_name || 'Utilisateur',
-          role: 'participant',
-          preferences: {
-            theme: 'light',
-            notifications: true,
-            language: 'fr'
-          }
-        }
-      };
-
-      setState({
-        user: authUser,
-        loading: false,
-        isAuthenticated: true,
-      });
-
-      return { user: authUser, error: null };
     }
 
     setState(prev => ({ ...prev, loading: false }));
