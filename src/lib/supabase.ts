@@ -1,9 +1,18 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'your-project-url'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://demo.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'demo-key'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Check if we're using real Supabase credentials
+const isProductionMode = supabaseUrl.includes('supabase.co') && supabaseAnonKey.length > 50
+
+// Create Supabase client - will work in demo mode with mock data
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: isProductionMode,
+    autoRefreshToken: isProductionMode,
+  }
+})
 
 // Types pour notre application
 export interface User {

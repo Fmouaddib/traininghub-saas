@@ -1,4 +1,4 @@
-# TrainingHub SaaS - Guide de Configuration
+# AntiPlanning SaaS - Guide de Configuration
 
 ## 🏗️ Architecture
 - **Frontend**: React 18 + TypeScript + Vite
