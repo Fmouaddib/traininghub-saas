@@ -1,34 +1,67 @@
-import { useState } from 'react';
-import { AuthProvider, useAuth } from './hooks/useAuth-fixed';
+import { useState, useEffect, lazy, Suspense } from 'react';
+import { AuthProvider, useAuth } from './hooks/useAuth';
 import { QueryProvider } from './components/providers/QueryProvider';
 import { AuthLayout } from './components/templates/AuthLayout';
 import { ModernLayout } from './components/layout/ModernLayout';
-import { ModernDashboard } from './components/organisms/Dashboard/ModernDashboard';
-import { EmptyState } from './components/molecules/EmptyState';
-import { CalendarView } from './components/molecules/CalendarView';
-import { TodaySessions } from './components/molecules/TodaySessions';
-import { SupabaseTest } from './components/molecules/SupabaseTest';
+import { ToastContainer } from './components/molecules/ToastContainer';
+import { useToast } from './hooks/useToast';
+import { SuperAdminGuard } from './components/super-admin/SuperAdminGuard';
 import './styles/modern.css';
+
+// Lazy-load super admin app
+const SuperAdminApp = lazy(() => import('./components/super-admin/SuperAdminApp').then(m => ({ default: m.SuperAdminApp })));
+
+// Lazy-loaded pages
+const ModernDashboard = lazy(() => import('./components/organisms/Dashboard/ModernDashboard').then(m => ({ default: m.ModernDashboard })));
+const SessionsPage = lazy(() => import('./components/pages/SessionsPage').then(m => ({ default: m.SessionsPage })));
+const RoomsPage = lazy(() => import('./components/pages/RoomsPage').then(m => ({ default: m.RoomsPage })));
+const ParticipantsPage = lazy(() => import('./components/pages/ParticipantsPage').then(m => ({ default: m.ParticipantsPage })));
+const NewSessionPage = lazy(() => import('./components/pages/NewSessionPage').then(m => ({ default: m.NewSessionPage })));
+const ProgramsPage = lazy(() => import('./components/pages/ProgramsPage').then(m => ({ default: m.ProgramsPage })));
+const DiplomasPage = lazy(() => import('./components/pages/DiplomasPage').then(m => ({ default: m.DiplomasPage })));
+const SubjectsPage = lazy(() => import('./components/pages/SubjectsPage').then(m => ({ default: m.SubjectsPage })));
+const ClassesPage = lazy(() => import('./components/pages/ClassesPage').then(m => ({ default: m.ClassesPage })));
+const ZoomPage = lazy(() => import('./components/pages/ZoomPage').then(m => ({ default: m.ZoomPage })));
+const EmailsPage = lazy(() => import('./components/pages/EmailsPage').then(m => ({ default: m.EmailsPage })));
+const SettingsPage = lazy(() => import('./components/pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
+
+const PageLoader = () => (
+  <div className="flex items-center justify-center p-12">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#002F5D]"></div>
+  </div>
+);
 
 // Main App Component (inside AuthProvider)
 const AppContent = () => {
   const { user, isAuthenticated, signIn, signUp, signOut, resetPassword } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [hash, setHash] = useState(window.location.hash);
+  const { toasts, removeToast } = useToast();
 
-  // Authentication handlers
+  useEffect(() => {
+    const onHashChange = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  // Redirect super_admin users to #/super-admin
+  const isSuperAdminUser = user?.profile?.role === 'super_admin';
+  useEffect(() => {
+    if (isAuthenticated && isSuperAdminUser && !hash.startsWith('#/super-admin')) {
+      window.location.hash = '#/super-admin';
+    }
+  }, [isAuthenticated, isSuperAdminUser, hash]);
+
   const handleLogin = async (email: string, password: string) => {
-    const result = await signIn(email, password);
-    return result;
+    return await signIn(email, password);
   };
 
-  const handleSignUp = async (data: any) => {
-    const result = await signUp(data);
-    return result;
+  const handleSignUp = async (data: { email: string; password: string; fullName: string; role?: string; phone?: string }) => {
+    return await signUp(data);
   };
 
   const handleResetPassword = async (email: string) => {
-    const result = await resetPassword(email);
-    return result;
+    return await resetPassword(email);
   };
 
   const handleLogout = async () => {
@@ -36,207 +69,43 @@ const AppContent = () => {
     setActiveTab('dashboard');
   };
 
-  // Navigation handlers
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-  };
+  const handleTabChange = (tab: string) => setActiveTab(tab);
+  const handleNewSession = () => setActiveTab('new-session');
 
-  const handleNewSession = () => {
-    setActiveTab('new-session');
-  };
-
-  // Render content based on active tab
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
         return <ModernDashboard onNewSession={handleNewSession} onNavigate={handleTabChange} />;
       case 'sessions':
-        return (
-          <div className="space-y-6">
-            {/* Header avec actions */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-2xl font-bold text-neutral-900">Planning des sessions</h2>
-                <p className="text-neutral-600 mt-1">Gérez vos cours et formations avec le calendrier interactif</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <button className="px-4 py-2 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors flex items-center gap-2">
-                  <span>📊</span>
-                  Vue planning
-                </button>
-                <button 
-                  onClick={handleNewSession}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-                >
-                  <span>+</span>
-                  Nouvelle session
-                </button>
-              </div>
-            </div>
-
-            {/* Calendrier connecté aux données Supabase */}
-            <CalendarView 
-              onDateClick={(date) => console.log('Date cliquée:', date)}
-              onEventClick={(eventId) => console.log('Session cliquée:', eventId)}
-            />
-
-            {/* Debug Supabase + Sessions du jour */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 space-y-6">
-                <TodaySessions 
-                  onSessionClick={(sessionId) => console.log('Session sélectionnée:', sessionId)}
-                />
-              </div>
-
-              <div className="space-y-6">
-                {/* Debug Supabase temporaire */}
-                <SupabaseTest />
-                {/* Stats rapides */}
-                <div className="bg-white rounded-xl border border-neutral-200 p-6">
-                  <h3 className="text-lg font-semibold text-neutral-900 mb-4">Statistiques</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-neutral-600">Sessions ce mois</span>
-                      <span className="font-semibold text-neutral-900">-</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-neutral-600">Étudiants actifs</span>
-                      <span className="font-semibold text-neutral-900">-</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-neutral-600">Taux présence</span>
-                      <span className="font-semibold text-green-600">-</span>
-                    </div>
-                  </div>
-                  <div className="mt-4 text-xs text-neutral-500">
-                    💡 Connecté aux données Supabase
-                  </div>
-                </div>
-
-                {/* Actions rapides */}
-                <div className="bg-white rounded-xl border border-neutral-200 p-6">
-                  <h3 className="text-lg font-semibold text-neutral-900 mb-4">Actions rapides</h3>
-                  <div className="space-y-2">
-                    <button 
-                      onClick={handleNewSession}
-                      className="w-full p-3 text-left rounded-lg hover:bg-neutral-50 transition-colors flex items-center gap-3"
-                    >
-                      <span className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">📅</span>
-                      <span className="text-sm font-medium">Créer une session</span>
-                    </button>
-                    <button className="w-full p-3 text-left rounded-lg hover:bg-neutral-50 transition-colors flex items-center gap-3">
-                      <span className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">👥</span>
-                      <span className="text-sm font-medium">Inviter des participants</span>
-                    </button>
-                    <button className="w-full p-3 text-left rounded-lg hover:bg-neutral-50 transition-colors flex items-center gap-3">
-                      <span className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">📊</span>
-                      <span className="text-sm font-medium">Voir les rapports</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
+        return <SessionsPage onNewSession={handleNewSession} />;
+      case 'classes':
+        return <ClassesPage />;
       case 'programs':
-        return (
-          <div className="p-8">
-            <EmptyState
-              illustration="sessions"
-              title="Programmes de formation"
-              description="Gérez vos programmes de formation, créez des parcours pédagogiques et organisez vos cursus. Cette fonctionnalité sera disponible prochainement."
-            />
-          </div>
-        );
+        return <ProgramsPage />;
       case 'participants':
-        return (
-          <div className="p-8">
-            <EmptyState
-              illustration="students"
-              title="Gestion des participants"
-              description="Administrez les inscriptions, suivez les progrès des apprenants et gérez les présences. Cette section sera bientôt disponible."
-            />
-          </div>
-        );
+        return <ParticipantsPage />;
       case 'rooms':
-        return (
-          <div className="p-8">
-            <EmptyState
-              illustration="planning"
-              title="Gestion des salles"
-              description="Organisez vos espaces de formation, gérez les réservations et optimisez l'utilisation de vos locaux."
-            />
-          </div>
-        );
+        return <RoomsPage />;
       case 'diplomas':
-        return (
-          <div className="p-8">
-            <EmptyState
-              illustration="sessions"
-              title="Certificats et diplômes"
-              description="Créez et délivrez des certificats de formation personnalisés pour valoriser les acquis de vos apprenants."
-            />
-          </div>
-        );
+        return <DiplomasPage />;
       case 'subjects':
-        return (
-          <div className="p-8">
-            <EmptyState
-              illustration="sessions"
-              title="Catalogue des matières"
-              description="Organisez votre offre pédagogique, définissez vos matières et structurez vos contenus de formation."
-            />
-          </div>
-        );
+        return <SubjectsPage />;
       case 'zoom':
-        return (
-          <div className="p-8">
-            <EmptyState
-              illustration="calendar"
-              title="Visioconférence"
-              description="Intégrez vos outils de visioconférence (Zoom, Teams) pour les formations à distance et hybrides."
-            />
-          </div>
-        );
+        return <ZoomPage />;
       case 'emails':
-        return (
-          <div className="p-8">
-            <EmptyState
-              illustration="planning"
-              title="Communication automatisée"
-              description="Configurez vos notifications automatiques, rappels de sessions et communications avec les participants."
-            />
-          </div>
-        );
+        return <EmailsPage />;
       case 'settings':
-        return (
-          <div className="p-8">
-            <EmptyState
-              illustration="planning"
-              title="Paramètres système"
-              description="Configurez votre plateforme, gérez les utilisateurs et personnalisez l'interface selon vos besoins."
-            />
-          </div>
-        );
+        return <SettingsPage />;
       case 'new-session':
-        return (
-          <div className="p-8">
-            <EmptyState
-              illustration="sessions"
-              title="Créer une nouvelle session"
-              description="Planifiez une nouvelle session de formation en définissant le programme, les participants et les modalités."
-            />
-          </div>
-        );
+        return <NewSessionPage onBack={() => setActiveTab('sessions')} />;
       default:
         return <ModernDashboard onNewSession={handleNewSession} onNavigate={handleTabChange} />;
     }
   };
 
-  // Authentication page
   if (!isAuthenticated) {
     return (
-      <AuthLayout 
+      <AuthLayout
         onLogin={handleLogin}
         onSignUp={handleSignUp}
         onResetPassword={handleResetPassword}
@@ -244,20 +113,40 @@ const AppContent = () => {
     );
   }
 
-  // Main application with modern layout
+  // Super Admin routing
+  const isSuperAdminRoute = hash.startsWith('#/super-admin');
+
+  if (isSuperAdminRoute) {
+    return (
+      <SuperAdminGuard>
+        <Suspense fallback={
+          <div className="flex items-center justify-center p-12" style={{ minHeight: '100vh' }}>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#e74c3c]"></div>
+          </div>
+        }>
+          <SuperAdminApp />
+        </Suspense>
+      </SuperAdminGuard>
+    );
+  }
+
   return (
-    <ModernLayout
-      activeTab={activeTab}
-      onTabChange={handleTabChange}
-      user={user}
-      onSignOut={handleLogout}
-    >
-      {renderContent()}
-    </ModernLayout>
+    <>
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      <ModernLayout
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+        user={user}
+        onSignOut={handleLogout}
+      >
+        <Suspense fallback={<PageLoader />}>
+          {renderContent()}
+        </Suspense>
+      </ModernLayout>
+    </>
   );
 };
 
-// Root App Component with AuthProvider
 function App() {
   return (
     <QueryProvider>
